@@ -86,7 +86,7 @@ def get_mentions(url):
     mentions = []
     reposts = 0
     likes = 0
-    
+
     r = requests.get('https://webmention.io/api/mentions?target='+url)
     p = r.json()
 
