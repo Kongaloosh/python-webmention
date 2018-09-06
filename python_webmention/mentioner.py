@@ -1,6 +1,7 @@
 import requests
 from requests.exceptions import MissingSchema
 import re
+from bs4 import BeautifulSoup
 
 """
  Collection of methods which relate to sending webmentions.
@@ -98,5 +99,53 @@ def get_mentions(url):
         else:
             mentions.append(link['data'])
     return mentions, likes, reposts
+
+
+def get_entry_content(url):
+    print "requesting " + str(url)
+    r = requests.get(url)
+    soup = BeautifulSoup(r.text, 'html.parser')
+    entry = {}
+    try:
+        entry_full = soup.find_all(class_="hentry")[0]
+    except (IndexError, AttributeError):
+        try:
+            entry_full = soup.find_all(class_="h-entry")[0]
+        except (IndexError, AttributeError):
+            pass
+
+    try:
+        entry['author'] = soup.find(class_="p-author").find(class_='p-name').text
+    except (KeyError, AttributeError):
+        try:
+            entry['author'] = soup.find(class_="p-author").find(class_='p-name')
+        except AttributeError:
+            pass
+
+    try:
+        if entry['author'] == '':
+            entry['author'] = soup.find(class_="p-author").find(class_='p-name')['value']
+    except (KeyError, AttributeError):
+        pass
+
+    try:
+        if entry['author'] == None:
+            entry['author'] = soup.find(class_="p-author")['title']
+    except KeyError:
+        pass
+
+    try:
+        entry['published'] = soup.find_all(class_='dt-published')[0].contents[0]
+    except IndexError:
+        pass
+    try:
+        h = html2text.HTML2Text()
+        h.ignore_links = False
+        post = ' '.join([str(i) for i in soup.find(class_='e-content').contents])
+        entry['content'] = markdown2.markdown(h.handle(post))
+    except AttributeError:
+        pass
+    entry['url'] = url
+    return entry
 
 
