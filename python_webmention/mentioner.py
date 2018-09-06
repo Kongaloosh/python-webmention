@@ -2,6 +2,8 @@ import requests
 from requests.exceptions import MissingSchema
 import re
 from bs4 import BeautifulSoup
+import html2text
+import markdown2
 
 """
  Collection of methods which relate to sending webmentions.

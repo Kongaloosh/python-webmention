@@ -1,2 +1,4 @@
 requests==2.14.2
+html2text==2016.9.19
+markdown2==2.3.4
 beautifulsoup4==4.6.3
